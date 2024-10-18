@@ -10,13 +10,18 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = serviceManRegisterSchema.parse(body);
-    let user = await prisma.serviceMan.findUnique({
+    let user = await prisma.user.findUnique({
+      where: {
+        email: payload.email,
+      },
+    });
+    let serviceMan = await prisma.serviceMan.findUnique({
       where: {
         email: payload.email,
       },
     });
 
-    if (user) {
+    if (user || serviceMan) {
       return res.status(422).json({
         error: {
           message: "User already exist with this email",
@@ -44,3 +49,43 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
   }
 };
 
+export const ServiceManSignIn = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    const serviceMan = await prisma.serviceMan.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (serviceMan) {
+      const hashedPassword = await bcrypt.compare(
+        password,
+        serviceMan?.password
+      );
+      if (!hashedPassword) {
+        return res.status(401).json({
+          message: "Eamil or password is incorrect ",
+        });
+      }
+      const token = jwt.sign({ id: serviceMan.id }, process.env.JWT_SECRET!, {
+        expiresIn: "30d",
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+      return res.status(200).json({
+        message: "Login Successfully",
+      });
+    }
+    return res.status(404).json({
+      message: "Email doesn't exist",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
