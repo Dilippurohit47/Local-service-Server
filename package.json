@@ -6,10 +6,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./dist/index.js",
+    "server": "nodemon ./dist/index.js",
     "start": "node ./dist/index.js",
     "watch": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "concurrently \" npm run watch \" \" npm run server \""
   },
   "keywords": [],
   "author": "",
@@ -19,7 +20,8 @@
     "concurrently": "^9.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
