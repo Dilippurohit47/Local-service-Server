@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { registerSchema } from "../validations/authValidations.js";
+import { ZodError } from "zod";
+import { formatError } from "../helper.js";
 
 export const SignIn = (req: Request, res: Response) => {
   try {
@@ -7,6 +9,9 @@ export const SignIn = (req: Request, res: Response) => {
     const payload = registerSchema.parse(body);
     res.json(payload);
   } catch (error) {
-    return res.status(422).json(error);
+    if (error instanceof ZodError) {
+      return res.status(422).json(formatError(error));
+    }
+    return res.status(500).json("Internal server error");
   }
 };
