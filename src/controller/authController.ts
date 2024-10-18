@@ -65,7 +65,7 @@ export const SignIn = async (req: Request, res: Response) => {
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 3600000,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
       });
       return res.status(200).json({
         message: "Login Successfully",
