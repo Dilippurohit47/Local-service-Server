@@ -8,13 +8,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./dist/index.js",
     "start": "node ./dist/index.js",
-    "watch":"tsc -w",
+    "watch": "tsc -w",
     "build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.21.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "nodemon": "^3.1.7"
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.7.6",
+    "prisma": "^5.21.1",
     "typescript": "^5.6.3"
   }
 }
