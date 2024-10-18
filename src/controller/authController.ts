@@ -4,11 +4,11 @@ import { ZodError } from "zod";
 import { formatError } from "../helper.js";
 import prisma from "../config/database.js";
 import bcrypt from "bcrypt";
-export const SignIn = async (req: Request, res: Response) => {
+import jwt from "jsonwebtoken";
+export const SignUp = async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = registerSchema.parse(body);
-
     let user = await prisma.user.findUnique({
       where: {
         email: payload.email,
@@ -40,5 +40,43 @@ export const SignIn = async (req: Request, res: Response) => {
       });
     }
     return res.status(500).json("Internal server error");
+  }
+};
+
+export const SignIn = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (user) {
+      const hashedPassword = await bcrypt.compare(password, user?.password);
+      if (!hashedPassword) {
+        return res.status(401).json({
+          message: "Eamil or password is incorrect ",
+        });
+      }
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
+        expiresIn: "30d",
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 3600000,
+      });
+      return res.status(200).json({
+        message: "Login Successfully",
+      });
+    }
+    return res.status(404).json({
+      message: "Email doesn't exist",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 };
