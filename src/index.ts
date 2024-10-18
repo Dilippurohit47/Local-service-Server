@@ -6,12 +6,13 @@ const app = express();
 
 const PORT = process.env.PORT || 8000;
 
-app.use(express.json())
+app.use(express.json());
 app.get("/", (req: Request, res: Response) => {
   res.send("server is running!");
 });
 
-app.use("/api/v1/user", userRoutes); 
+app.use("/api/v1", userRoutes);
+app.use("/api/v1", userRoutes);
 
 app.listen(PORT, () =>
   console.log(`server is running on port http://localhost:${PORT}`)

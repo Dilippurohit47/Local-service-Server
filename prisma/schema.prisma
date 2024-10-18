@@ -22,7 +22,7 @@ phoneNo String @unique
 password String
 
 }
-model serviceMan{
+model ServiceMan{
 id Int @id @default(autoincrement())
 name  String @db.VarChar(191)
 email String  @unique
