@@ -9,16 +9,23 @@ export const SignUp = async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = registerSchema.parse(body);
-    let user = await prisma.user.findUnique({
+    let user = await prisma.user.findFirst({
       where: {
-        email: payload.email,
+        OR: [{ email: payload.email }, { phoneNo: payload.phoneNo }],
       },
     });
 
-    if (user) {
+    if (user?.email === payload.email) {
       return res.status(422).json({
         error: {
           message: "Email already exist try different eamil or login",
+        },
+      });
+    }
+    if (user?.phoneNo === payload.phoneNo) {
+      return res.status(422).json({
+        error: {
+          message: "Phone Number already exist",
         },
       });
     }
@@ -29,13 +36,13 @@ export const SignUp = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      message: "User created successfully",
+      message: "Signup successfully",
     });
   } catch (error) {
     if (error instanceof ZodError) {
       const errors = formatError(error);
       return res.status(422).json({
-        message: "Invalid data",
+        message: "please Provide all fields",
         errors,
       });
     }
@@ -56,6 +63,7 @@ export const SignIn = async (req: Request, res: Response) => {
       const hashedPassword = await bcrypt.compare(password, user?.password);
       if (!hashedPassword) {
         return res.status(401).json({
+          success:false,
           message: "Eamil or password is incorrect ",
         });
       }
@@ -68,10 +76,12 @@ export const SignIn = async (req: Request, res: Response) => {
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
       return res.status(200).json({
+      success:true,
         message: "Login Successfully",
       });
     }
     return res.status(404).json({
+      success:false,
       message: "Email doesn't exist",
     });
   } catch (error) {
