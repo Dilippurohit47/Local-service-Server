@@ -91,19 +91,30 @@ export const SignIn = async (req: Request, res: Response) => {
   }
 };
 
-export const GetCookie = (req:Request, res:Response) => {
+export const GetCookie = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.token;
+    console.log(token);
     if (!token) {
       return res.status(200).json({
         message: "User is not loged in",
         success: false,
       });
     }
-    return res.status(200).json({
-      success: true,
-      token,
-    });
+
+    const { id } = jwt.verify(token, process.env.JWT_SECRET!);
+    if (id) {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: id,
+        },
+      });
+      return res.status(200).json({
+        success: true,
+        token,
+        user,
+      });
+    }
   } catch (error) {
     return res.status(500).json("Internal server error");
   }
