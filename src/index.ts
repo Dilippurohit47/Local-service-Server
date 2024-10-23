@@ -2,9 +2,12 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import userRoutes from "./router/authRoute.js";
+import cookieParser from 'cookie-parser';
+
+
 dotenv.config();
 const app = express();
-
+app.use(cookieParser());
 const PORT = process.env.PORT || 8000;
 
 app.use(

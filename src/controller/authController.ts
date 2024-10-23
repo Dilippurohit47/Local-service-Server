@@ -63,7 +63,7 @@ export const SignIn = async (req: Request, res: Response) => {
       const hashedPassword = await bcrypt.compare(password, user?.password);
       if (!hashedPassword) {
         return res.status(401).json({
-          success:false,
+          success: false,
           message: "Eamil or password is incorrect ",
         });
       }
@@ -76,17 +76,35 @@ export const SignIn = async (req: Request, res: Response) => {
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
       return res.status(200).json({
-      success:true,
+        success: true,
         message: "Login Successfully",
       });
     }
     return res.status(404).json({
-      success:false,
+      success: false,
       message: "Email doesn't exist",
     });
   } catch (error) {
     return res.status(500).json({
       message: "Internal server error",
     });
+  }
+};
+
+export const GetCookie = (req:Request, res:Response) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(200).json({
+        message: "User is not loged in",
+        success: false,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json("Internal server error");
   }
 };
