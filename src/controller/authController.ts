@@ -94,7 +94,6 @@ export const SignIn = async (req: Request, res: Response) => {
 export const GetCookie = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.token;
-    console.log(token);
     if (!token) {
       return res.status(200).json({
         message: "User is not loged in",
@@ -117,5 +116,25 @@ export const GetCookie = async (req: Request, res: Response) => {
     }
   } catch (error) {
     return res.status(500).json("Internal server error");
+  }
+};
+
+export const SignOut = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server Error",
+    });
   }
 };
