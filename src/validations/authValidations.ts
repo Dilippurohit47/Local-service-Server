@@ -16,11 +16,6 @@ export const registerSchema = z.object({
     .min(10, { message: "Please provide valid number" }),
 });
 
-const serviceSchema = z.object({
-  name: z.string().min(1, { message: "At least one service is required." }),
-  description: z.string().optional(),
-});
-
 export const serviceManRegisterSchema = z.object({
   name: z
     .string({ message: "Name is required" })
@@ -41,6 +36,6 @@ export const serviceManRegisterSchema = z.object({
     .min(10, { message: "Please provide valid number" }),
   profileUrl: z.string({ message: "Profile is required." }),
   services: z
-    .array(serviceSchema)
+    .array(z.string().min(1, { message: "At least one service is required." }))
     .nonempty({ message: "At least one service is required." }),
 });

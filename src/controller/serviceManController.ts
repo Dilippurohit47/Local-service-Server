@@ -1,50 +1,86 @@
 import { Request, Response } from "express";
-import { serviceManRegisterSchema } from "../validations/authValidations.js";
-import { ZodError } from "zod";
-import { formatError } from "../helper.js";
 import prisma from "../config/database.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 export const ServiceManSignUp = async (req: Request, res: Response) => {
   try {
-    const body = req.body;
-    const payload = serviceManRegisterSchema.parse(body);
-    let user = await prisma.user.findUnique({
-      where: {
-        email: payload.email,
-      },
-    });
-    let serviceMan = await prisma.serviceMan.findUnique({
-      where: {
-        email: payload.email,
-      },
-    });
-
-    if (user || serviceMan) {
+    const {
+      name,
+      email,
+      password,
+      phoneNo,
+      services,
+      profileUrl,
+      workingPhoneNo,
+    } = req.body;
+  
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !phoneNo ||
+      !services ||
+      !profileUrl ||
+      !workingPhoneNo
+    ) {
       return res.status(422).json({
-        error: {
-          message: "User already exist with this email",
-        },
+        success: false,
+        message: "Please enter all fields",
       });
     }
-    payload.password = await bcrypt.hash(payload.password, 10);
+
+    let userEmail = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    let serviceManEmail = await prisma.serviceMan.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    let userNo = await prisma.user.findFirst({
+      where: {
+        phoneNo: phoneNo,
+      },
+    });
+    let serviceManNO = await prisma.serviceMan.findFirst({
+      where: {
+        phoneNo: phoneNo,
+      },
+    });
+
+    if (userEmail || serviceManEmail) {
+      return res.status(422).json({
+        success: false,
+        message: "User already exist with this email  ",
+      });
+    }
+    if (userNo || serviceManNO) {
+      return res.status(422).json({
+        success: false,
+        message: "User already exist with this Phone Number ",
+      });
+    }
+    const hashPassword = await bcrypt.hash(password, 10);
 
     await prisma.serviceMan.create({
-      data: payload,
+      data: {
+        name: name,
+        email: email,
+        password: hashPassword,
+        phoneNo: phoneNo,
+        profileUrl: profileUrl,
+        services: services,
+        workingPhoneNo: workingPhoneNo,
+      },
     });
 
     return res.status(200).json({
-      message: "ServiceMan created successfully",
+      success: true,
+      message: "SignUp successfully",
     });
   } catch (error) {
-    if (error instanceof ZodError) {
-      const errors = formatError(error);
-      return res.status(422).json({
-        message: "Invalid data",
-        errors,
-      });
-    }
     return res.status(500).json("Internal server error");
   }
 };
