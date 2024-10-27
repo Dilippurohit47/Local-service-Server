@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../config/database.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
 export const ServiceManSignUp = async (req: Request, res: Response) => {
   try {
     const {
@@ -13,7 +14,7 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
       profileUrl,
       workingPhoneNo,
     } = req.body;
-  
+
     if (
       !name ||
       !email ||
@@ -89,6 +90,13 @@ export const ServiceManSignIn = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(401).json({
+        success: false,
+        message: "Please enter all fields ",
+      });
+    }
+
     const serviceMan = await prisma.serviceMan.findUnique({
       where: {
         email: email,
@@ -101,26 +109,31 @@ export const ServiceManSignIn = async (req: Request, res: Response) => {
       );
       if (!hashedPassword) {
         return res.status(401).json({
+          success: false,
           message: "Eamil or password is incorrect ",
         });
       }
-      const token = jwt.sign({ id: serviceMan.id }, process.env.JWT_SECRET!, {
-        expiresIn: "30d",
-      });
+      const token = jwt.sign(
+        { id: serviceMan.id, userType: "serviceMan" },
+        process.env.JWT_SECRET!,
+        { expiresIn: "30d" }
+      );
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
       return res.status(200).json({
+        success: true,
         message: "Login Successfully",
       });
     }
     return res.status(404).json({
-      message: "Email doesn't exist",
+      message: "Email doesn't exist signup first",
     });
   } catch (error) {
     return res.status(500).json({
+      success: false,
       message: "Internal server error",
     });
   }
