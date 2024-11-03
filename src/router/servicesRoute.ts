@@ -1,10 +1,12 @@
 import express from "express";
-import { getAllServices } from "../controller/servicesController.js";
+import {
+  getAllServices,
+  getServiceWithName,
+} from "../controller/servicesController.js";
 
+const app = express.Router();
 
-const app = express.Router()
+app.get("/getAll", getAllServices);
+app.get("/get/:name", getServiceWithName);
 
-app.get("/getAll",getAllServices)
-
-
-export default app
+export default app;
