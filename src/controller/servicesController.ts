@@ -19,18 +19,16 @@ export const getAllServices = async (req: Request, res: Response) => {
 export const getServiceWithName = async (req: Request, res: Response) => {
   try {
     const { name } = req.params;
-    const newName = name.toLocaleUpperCase()
     const services = await prisma.serviceMan.findMany({
       where: {
         services: {
-          hasSome: [newName],
+          hasSome: [name],
         },
       },
     });
 
     return res.status(200).json({
       success: true,
-      newName,
       data: services,
     });
   } catch (error) {

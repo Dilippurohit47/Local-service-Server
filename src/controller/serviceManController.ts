@@ -93,7 +93,7 @@ export const ServiceManSignIn = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(401).json({
         success: false,
-        message: "Please enter all fields ",
+        message: "Please enter all fields ", 
       });
     }
 
@@ -138,3 +138,5 @@ export const ServiceManSignIn = async (req: Request, res: Response) => {
     });
   }
 };
+
+
