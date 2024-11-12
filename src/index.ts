@@ -17,7 +17,7 @@ app.use(
   })
 );
 app.use(express.json());
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_, res: Response) => {
   res.send("server is running!");
 });
 
