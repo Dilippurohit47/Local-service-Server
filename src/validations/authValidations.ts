@@ -14,6 +14,22 @@ export const registerSchema = z.object({
     .string({ message: "Phone number is required." })
     .max(10, { message: "Please provide valid number" })
     .min(10, { message: "Please provide valid number" }),
+  city: z
+    .string({ message: "Please enter your city" })
+    .max(15, { message: "Please provide valid city name" })
+    .min(3, { message: "Please provide valid  city name" }),
+  country: z
+    .string({ message: "Please enter your country" })
+    .max(15, { message: "Please provide valid country name" })
+    .min(3, { message: "Please provide valid  country name" }),
+  state: z
+    .string({ message: "Please enter your state" })
+    .max(15, { message: "Please provide valid state name" })
+    .min(3, { message: "Please provide valid  state name" }),
+  pincode: z
+    .string({ message: "Please enter your pincode number " })
+    .max(6, { message: "Please provide valid pincode number" })
+    .min(6, { message: "Please provide valid  pincode number" }),
 });
 
 export const serviceManRegisterSchema = z.object({
