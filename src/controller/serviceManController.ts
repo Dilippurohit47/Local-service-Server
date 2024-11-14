@@ -14,7 +14,6 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
       profileUrl,
       workingPhoneNo,
     } = req.body;
-
     if (
       !name ||
       !email ||
@@ -29,6 +28,7 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
         message: "Please enter all fields",
       });
     }
+    let parsedServices = services ? JSON.parse(services) : [];
 
     let userEmail = await prisma.user.findFirst({
       where: {
@@ -50,7 +50,6 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
         phoneNo: phoneNo,
       },
     });
-
     if (userEmail || serviceManEmail) {
       return res.status(422).json({
         success: false,
@@ -72,7 +71,7 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
         password: hashPassword,
         phoneNo: phoneNo,
         profileUrl: profileUrl,
-        services: services,
+        services: parsedServices,
         workingPhoneNo: workingPhoneNo,
       },
     });
