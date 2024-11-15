@@ -13,7 +13,12 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
       services,
       profileUrl,
       workingPhoneNo,
+      city,
+      country,
+      state,
+      pincode,
     } = req.body;
+
     if (
       !name ||
       !email ||
@@ -21,13 +26,17 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
       !phoneNo ||
       !services ||
       !profileUrl ||
-      !workingPhoneNo
+      !workingPhoneNo ||
+      !city ||
+      !country ||
+      !state
     ) {
       return res.status(422).json({
         success: false,
         message: "Please enter all fields",
       });
     }
+
     let parsedServices = services ? JSON.parse(services) : [];
 
     let userEmail = await prisma.user.findFirst({
@@ -73,6 +82,10 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
         profileUrl: profileUrl,
         services: parsedServices,
         workingPhoneNo: workingPhoneNo,
+        city,
+        country,
+        state,
+        pincode,
       },
     });
 
@@ -92,7 +105,7 @@ export const ServiceManSignIn = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(401).json({
         success: false,
-        message: "Please enter all fields ", 
+        message: "Please enter all fields ",
       });
     }
 
@@ -137,5 +150,3 @@ export const ServiceManSignIn = async (req: Request, res: Response) => {
     });
   }
 };
-
-
