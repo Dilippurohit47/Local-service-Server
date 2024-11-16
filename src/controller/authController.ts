@@ -30,10 +30,20 @@ export const SignUp = async (req: Request, res: Response) => {
         },
       });
     }
+    console.log("lol");
+    const data = await fetch(
+      `https://geocode.maps.co/search?q=${payload.country}%20${payload.state}%20${payload.city}&api_key=6738a0c177bd4019266980jofb0d17b`
+    );
+    const latLong = await data.json();
+
     payload.password = await bcrypt.hash(payload.password, 10);
 
     await prisma.user.create({
-      data: payload,
+      data: {
+        ...payload,
+        latitude: latLong[0].lat,
+        longitude: latLong[0].lon,
+      },
     });
 
     return res.status(200).json({
