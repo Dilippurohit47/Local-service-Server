@@ -67,12 +67,16 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
     }
     if (userNo || serviceManNO) {
       return res.status(422).json({
-        success: false,
+        success: false, 
         message: "User already exist with this Phone Number ",
       });
     }
-    const hashPassword = await bcrypt.hash(password, 10);
 
+    const hashPassword = await bcrypt.hash(password, 10);
+    const data = await fetch(
+      `https://geocode.maps.co/search?q=${country}%20${state}%20${city}&api_key=6738a0c177bd4019266980jofb0d17b`
+    );
+    const latLong = await data.json();
     await prisma.serviceMan.create({
       data: {
         name: name,
@@ -86,6 +90,8 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
         country,
         state,
         pincode,
+        latitude: latLong[0].lat,
+        longitude: latLong[0].lon,
       },
     });
 

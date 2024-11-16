@@ -30,7 +30,6 @@ export const SignUp = async (req: Request, res: Response) => {
         },
       });
     }
-    console.log("lol");
     const data = await fetch(
       `https://geocode.maps.co/search?q=${payload.country}%20${payload.state}%20${payload.city}&api_key=6738a0c177bd4019266980jofb0d17b`
     );
