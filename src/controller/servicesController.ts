@@ -1,3 +1,4 @@
+import { json } from "stream/consumers";
 import prisma from "../config/database.js";
 import { Request, Response } from "express";
 
@@ -21,9 +22,14 @@ export const getServiceWithName = async (req: Request, res: Response) => {
     const { name } = req.params;
     const search = name.toLowerCase();
     const services = await prisma.serviceMan.findMany();
+
     const matchedServices = [];
     services.forEach((service) => {
-      if (service.services.some((svc) => svc.toLowerCase().includes(search))) {
+      if (
+        service.services.some((svc) =>
+          svc?.value.toLowerCase().includes(search)
+        )
+      ) {
         matchedServices.push(service);
       }
     });
