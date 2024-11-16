@@ -24,6 +24,8 @@ country String
 state String
 city String
 pincode String
+latitude String
+longitude String
 }
 model ServiceMan{
 id Int @id @default(autoincrement())
@@ -38,4 +40,6 @@ country String
 state String
 city String
 pincode String
+latitude String
+longitude String
 }
