@@ -1,4 +1,3 @@
-
 import prisma from "../config/database.js";
 import { Request, Response } from "express";
 
@@ -52,32 +51,83 @@ export const getServiceWithName = async (req: Request, res: Response) => {
     });
   }
 };
+import { Request, Response } from "express";
 
-export const getServicesWithPincode = async (req: Request, res: Response) => {
+export const getClosestService = async (req: Request, res: Response) => {
   try {
-    const { pincode } = req.params;
+    const { lat, long, country } = req.params;
 
-    if (!pincode) {
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(long);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
       return res.status(400).json({
         success: false,
-        message: "Pincode is required",
+        message: "Invalid latitude or longitude provided.",
       });
     }
 
-    const services = await prisma.serviceMan.findMany({
+    const countryServices = await prisma.serviceMan.findMany({
       where: {
-        pincode: pincode,
+        country: country,
       },
     });
+
+    if (countryServices.length <= 0) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "No services available in your country. Kindly change your country.",
+      });
+    }
+
+    const calculateDistance = (
+      lat1: number,
+      lon1: number,
+      lat2: number,
+      lon2: number
+    ) => {
+      const R = 6371; 
+      const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) *
+          Math.cos(toRadians(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c; // Distance in km
+    };
+
+    // Add distance to each service and sort
+    const sortedServices = countryServices
+      .map((service) => ({
+        ...service,
+        distance: calculateDistance(
+          latitude,
+          longitude,
+          parseFloat(service.latitude),
+          parseFloat(service.longitude)
+        ),
+      }))
+      .sort((a, b) => a.distance - b.distance);
+
     return res.status(200).json({
       success: true,
-      message: "Service found successfully",
-      data: services,
+      message: "Closest services found successfully.",
+      services: sortedServices,
     });
   } catch (error) {
+    console.error("Error fetching closest services:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error.",
     });
   }
 };
