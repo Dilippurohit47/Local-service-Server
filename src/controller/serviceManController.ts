@@ -67,7 +67,7 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
     }
     if (userNo || serviceManNO) {
       return res.status(422).json({
-        success: false, 
+        success: false,
         message: "User already exist with this Phone Number ",
       });
     }
@@ -77,7 +77,7 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
       `https://geocode.maps.co/search?q=${country}%20${state}%20${city}&api_key=6738a0c177bd4019266980jofb0d17b`
     );
     const latLong = await data.json();
-    await prisma.serviceMan.create({
+    const newServiceMan = await prisma.serviceMan.create({
       data: {
         name: name,
         email: email,
@@ -93,6 +93,19 @@ export const ServiceManSignUp = async (req: Request, res: Response) => {
         latitude: latLong[0].lat,
         longitude: latLong[0].lon,
       },
+    });
+
+    const token = jwt.sign(
+      { id: newServiceMan.id, userType: "serviceman" },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "30d",
+      }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({

@@ -44,7 +44,6 @@ export const SignUp = async (req: Request, res: Response) => {
         longitude: latLong[0].lon,
       },
     });
-    console.log(Newuser)
     const token = jwt.sign(
       { id: Newuser.id, userType: "user" },
       process.env.JWT_SECRET!,
