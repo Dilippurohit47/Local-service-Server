@@ -37,12 +37,23 @@ export const SignUp = async (req: Request, res: Response) => {
 
     payload.password = await bcrypt.hash(payload.password, 10);
 
-    await prisma.user.create({
+    const Newuser = await prisma.user.create({
       data: {
         ...payload,
         latitude: latLong[0].lat,
         longitude: latLong[0].lon,
       },
+    });
+    console.log(Newuser)
+    const token = jwt.sign(
+      { id: Newuser.id, userType: "user" },
+      process.env.JWT_SECRET!,
+      { expiresIn: "30d" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
@@ -78,7 +89,7 @@ export const SignIn = async (req: Request, res: Response) => {
       if (!hashedPassword) {
         return res.status(401).json({
           success: false,
-          message: "Eamil or password is incorrect ",
+          message: "Email or password is incorrect ",
         });
       }
       const token = jwt.sign(

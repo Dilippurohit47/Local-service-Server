@@ -52,6 +52,7 @@ export const getServiceWithName = async (req: Request, res: Response) => {
   }
 };
 import { Request, Response } from "express";
+import { handleError } from "../utils/errorHelper.js";
 
 export const getClosestService = async (req: Request, res: Response) => {
   try {
@@ -87,7 +88,7 @@ export const getClosestService = async (req: Request, res: Response) => {
       lat2: number,
       lon2: number
     ) => {
-      const R = 6371; 
+      const R = 6371;
       const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
 
       const dLat = toRadians(lat2 - lat1);
@@ -129,5 +130,36 @@ export const getClosestService = async (req: Request, res: Response) => {
       success: false,
       message: "Internal server error.",
     });
+  }
+};
+
+export const getServicesWithId = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id || isNaN(Number(id))) {
+      return handleError(
+        res,
+        400,
+        false,
+        "id is not valid. Id should be number"
+      );
+    }
+    const ServiceDetails = await prisma.serviceMan.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!ServiceDetails) {
+      return handleError(res, 404, false, "Service not found");
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Service with id found successfully.",
+      ServiceDetails,
+    });
+  } catch (error) {
+    return handleError(res, 500,true,"Internal server error.");
   }
 };
